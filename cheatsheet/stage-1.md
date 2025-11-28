@@ -112,6 +112,9 @@ storeId=kek"></select><script>alert(1)</script>
 
 ---
 
+
+
+
 ### Reflected DOM XSS
 **Context:** Escaping from JavaScript string
 
@@ -468,3 +471,18 @@ x=1
 2. **Check feedback forms** - Common location for smuggling
 3. **Try GPOST method** - Easy detection technique
 4. **Be patient** - Smuggling requires precise timing
+
+
+**Q: Why doesn't `<><script>alert(1)</script>` work?**
+
+**A:** Because:
+1. The payload is inserted via `innerHTML`
+2. Browsers **never execute** `<script>` tags inserted via `innerHTML`
+3. This is by design (security feature in HTML5 spec)
+4. You must use **event handlers** instead
+5. `<><img src=x onerror=alert(1)>` works because `onerror` executes
+
+**Exam rule:**
+- innerHTML sink → Use event handlers (`onerror`, `onload`, etc.)
+- document.write sink → Script tags work
+- **Never waste time trying `<script>` in innerHTML contexts**
