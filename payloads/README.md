@@ -8,6 +8,12 @@ Quick reference for common BSCP exam payloads.
 - [`os-command-injection.md`](os-command-injection.md) - Command injection with DNS exfiltration
 - [`path-traversal.md`](path-traversal.md) - Path traversal and bypass techniques
 - [`ssti.md`](ssti.md) - Server-Side Template Injection for all major engines
+- [`bypass-alternatives.md`](bypass-alternatives.md) - **Multiple bypass options for every filtering scenario**
+
+## Main Reference Files
+
+- **[`../EXAM-PAYLOADS.md`](../EXAM-PAYLOADS.md)** - Complete exam reference with all payloads organized by vulnerability
+- **[`bypass-alternatives.md`](bypass-alternatives.md)** - Alternative payloads when standard ones are blocked
 
 ## Quick Tips
 
