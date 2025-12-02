@@ -1,6 +1,176 @@
 # BSCP Exam Payloads - Complete Reference
 
-> **Quick Navigation:** [XSS](#xss) | [SQL Injection](#sql-injection) | [CSRF](#csrf) | [XXE](#xxe) | [SSRF](#ssrf) | [Access Control](#access-control) | [Deserialization](#deserialization) | [SSTI](#ssti) | [Command Injection](#command-injection) | [Path Traversal](#path-traversal) | [Exam Patterns](#exam-patterns)
+## 📋 Table of Contents
+
+### 🎯 Quick Access by Vulnerability Type
+- [XSS (Cross-Site Scripting)](#xss)
+- [SQL Injection](#sql-injection)
+- [CSRF (Cross-Site Request Forgery)](#csrf)
+- [Clickjacking](#clickjacking)
+- [XXE (XML External Entity)](#xxe)
+- [SSRF (Server-Side Request Forgery)](#ssrf)
+- [Access Control](#access-control)
+- [Deserialization](#deserialization)
+- [SSTI (Server-Side Template Injection)](#ssti)
+- [Command Injection](#command-injection)
+- [Path Traversal](#path-traversal)
+- [SSRF via PDF](#ssrf-via-pdf)
+- [File Upload](#file-upload)
+- [Stage 3 Quick Reference](#stage-3-quick-reference)
+- [Exam Patterns](#exam-patterns)
+
+---
+
+### 🔥 XSS Attack Patterns
+- [DOM XSS via innerHTML](#pattern-dom-xss-via-innerhtml)
+- [Iframe-Based DOM XSS Event Handlers](#pattern-iframe-based-dom-xss-event-handlers)
+  - [onload Event](#onload-event)
+  - [onmessage Event (postMessage)](#onmessage-event-postmessage)
+  - [onresize Event](#onresize-event)
+  - [onfocus Event](#onfocus-event)
+  - [onpageshow Event](#onpageshow-event)
+  - [onhashchange Event](#onhashchange-event)
+  - [onanimationstart Event](#onanimationstart-event)
+  - [ontoggle Event (details element)](#ontoggle-event-details-element)
+  - [onerror Event](#onerror-event)
+  - [onscroll Event](#onscroll-event)
+  - [Event Handler Syntax Reference](#event-handler-syntax-reference)
+- [AngularJS Expression Injection](#pattern-angularjs-expression-injection)
+- [Event Handler Injection](#pattern-event-handler-injection)
+- [JavaScript Context Escape](#pattern-javascript-context-escape)
+  - [Template Literal - String.fromCharCode Bypass](#template-literal---stringfromcharcode-bypass)
+  - [Template Literal with Function Constructor](#template-literal-with-function-constructor-advanced)
+  - [JSON Injection via eval()](#pattern-json-injection-via-eval)
+  - [JSON.parse Bypass with Function Constructor](#jsonparse-bypass-with-function-constructor)
+- [Web Message Exploitation](#pattern-web-message-exploitation)
+- [DOM-Based Cookie Manipulation](#pattern-dom-based-cookie-manipulation)
+- [CSRF Token Theft via XSS](#pattern-csrf-token-theft-via-xss)
+- [Password Capture](#pattern-password-capture)
+
+---
+
+### 💉 SQL Injection Patterns
+- [Quick Attack Template (10-20 mins)](#quick-attack-template-10-20-mins)
+  - [Step 1: Detection](#step-1-detection-2-mins)
+  - [Step 2: SQLMap](#step-2-sqlmap-recommended---10-mins)
+  - [Step 3: Manual Exploitation](#step-3-manual-exploitation-if-sqlmap-fails)
+    - [Error-Based (Fastest - 5 mins)](#error-based-fastest---5-mins)
+    - [Union-Based (10 mins)](#union-based-10-mins)
+    - [Blind SQLi - Boolean-Based (15 mins)](#blind-sqli---boolean-based-15-mins)
+    - [Blind SQLi - Time-Based (20 mins)](#blind-sqli---time-based-20-mins)
+    - [Blind SQLi - Out-of-Band (15 mins)](#blind-sqli---out-of-band-15-mins)
+  - [Step 4: XML-Based SQLi](#step-4-xml-based-sqli-if-in-xml-context)
+  - [ORDER BY / GROUP BY Injection](#pattern-order-by--group-by-injection)
+- [Database-Specific Cheat Sheet](#database-specific-cheat-sheet)
+- [Common Injection Points](#common-injection-points)
+
+---
+
+### 🔐 CSRF Patterns
+- [Referer Bypass](#pattern-referer-bypass)
+- [Token Duplication via CRLF](#pattern-token-duplication-via-crlf)
+- [SameSite Bypass via OAuth Refresh](#pattern-samesite-bypass-via-oauth-refresh)
+
+---
+
+### 🖱️ Clickjacking Patterns
+- [Basic Clickjacking Attack](#basic-clickjacking-attack)
+- [Clickjacking + XSS (Pre-filled Form)](#clickjacking--xss-pre-filled-form)
+- [Positioning Tips](#positioning-tips)
+- [Defense Check](#defense-check)
+
+---
+
+### 📄 XXE Patterns
+- [Blind XXE with Out-of-Band Interaction](#pattern-blind-xxe-with-out-of-band-interaction)
+- [Blind XXE - Data Exfiltration via External DTD](#pattern-blind-xxe---data-exfiltration-via-external-dtd)
+- [Blind XXE - Error-Based Exfiltration](#pattern-blind-xxe---error-based-exfiltration)
+- [XInclude Attack](#pattern-xinclude-attack)
+- [XXE Quick Reference](#xxe-quick-reference)
+
+---
+
+### 🌐 SSRF Patterns
+- [Routing-Based SSRF](#pattern-routing-based-ssrf)
+- [Absolute URL Bypass](#pattern-absolute-url-bypass)
+- [Localhost Bypass](#pattern-localhost-bypass)
+- [Connection State Attack](#pattern-connection-state-attack)
+- [Cache Poisoning via Duplicate Host](#pattern-cache-poisoning-via-duplicate-host)
+
+---
+
+### 🔓 Access Control Patterns
+- [Referer-Based Bypass](#pattern-referer-based-bypass)
+- [Method Conversion](#pattern-method-conversion)
+- [Multi-Step Bypass](#pattern-multi-step-bypass)
+- [IDOR with Hidden Parameters](#pattern-idor-with-hidden-parameters)
+
+---
+
+### 📦 Deserialization Patterns
+- [PHP Type Juggling](#pattern-php-type-juggling)
+- [Java ysoserial](#pattern-java-ysoserial)
+
+---
+
+### 🎨 SSTI Patterns
+- [Template Detection](#pattern-template-detection)
+- [Jinja2 (Python)](#pattern-jinja2-python)
+- [Freemarker (Java)](#pattern-freemarker-java)
+- [Handlebars (Node.js)](#pattern-handlebars-nodejs)
+
+---
+
+### 💻 Command Injection Patterns
+- [DNS Exfiltration](#pattern-dns-exfiltration)
+- [XML Context (DOCTYPE Disallowed)](#xml-context-doctype-disallowed)
+- [Image Size Parameter](#image-size-parameter)
+
+---
+
+### 📁 Path Traversal Patterns
+- [Double URL Encoding](#pattern-double-url-encoding)
+- [Keyword Blacklist Bypass](#keyword-blacklist-bypass-hex-encode-secret)
+- [Double Hex Encoding](#double-hex-encoding)
+
+---
+
+### 📄 SSRF via PDF Pattern
+- [HTML Injection in PDF Generation](#pattern-html-injection-in-pdf-generation)
+
+---
+
+### 📤 File Upload Patterns
+- [Polyglot PHP Web Shell](#pattern-polyglot-php-web-shell)
+- [.htaccess Configuration Override](#htaccess-configuration-override)
+- [Extension Bypass Techniques](#extension-bypass-techniques)
+
+---
+
+### ⚡ Stage 3 Quick Reference
+- [Pattern Recognition (30 seconds)](#pattern-recognition-30-seconds)
+- [SSTI Quick Attack (5-10 mins)](#ssti-quick-attack-5-10-mins)
+- [LFI Quick Attack (5 mins)](#lfi-quick-attack-5-mins)
+- [Command Injection Quick Attack (15 mins)](#command-injection-quick-attack-15-mins)
+- [XXE Quick Attack (20 mins)](#xxe-quick-attack-20-mins)
+- [Burp Collaborator Setup](#burp-collaborator-setup)
+
+---
+
+### 🎯 Exam Patterns by Stage
+- [Stage 1: Get Access to Any User](#stage-1-get-access-to-any-user)
+- [Stage 2: Privilege Escalation](#stage-2-privilege-escalation)
+- [Stage 3: File System Access](#stage-3-file-system-access)
+- [Common Exam Locations](#common-exam-locations)
+- [Quick Checklist](#quick-checklist)
+
+---
+
+## 🔍 Search Tips
+- Use `Ctrl+F` (Windows) or `Cmd+F` (Mac) to search for specific payloads
+- Click any link above to jump directly to that section
+- All payloads are copy-paste ready
+- Replace `TARGET`, `COLLAB`, `EXPLOIT-SERVER` with actual values
 
 ---
 
