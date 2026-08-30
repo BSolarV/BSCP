@@ -4,7 +4,7 @@ Quick reference for common BSCP exam payloads.
 
 ## Files
 
-- [`xss.md`](xss.md) - XSS payloads for cookie stealing and bypass techniques
+- [`xss.md`](BSCPNotes/payloads/xss.md) - XSS payloads for cookie stealing and bypass techniques
 - [`os-command-injection.md`](os-command-injection.md) - Command injection with DNS exfiltration
 - [`path-traversal.md`](path-traversal.md) - Path traversal and bypass techniques
 - [`ssti.md`](ssti.md) - Server-Side Template Injection for all major engines

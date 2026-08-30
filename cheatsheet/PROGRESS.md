@@ -1,39 +1,38 @@
 # All Labs
 
-
-| Category | Solved | Not Solved | Total | Completion % |
-|----------|--------|------------|-------|--------------|
-| SQL injection | 9 | 7 | 16 | 56.3% |
-| Cross-site scripting | 16 | 0 | 16 | 100% |
-| CSRF | 11 | 0 | 11 | 100% |
-| Clickjacking | 0 | 4 | 4 | 0% |
-| DOM-based vulnerabilities | 5 | 0 | 5 | 100% |
-| CORS | 1 | 0 | 1 | 100% |
-| XXE injection | 6 | 0 | 6 | 100% |
-| SSRF | 3 | 0 | 3 | 100% |
-| HTTP request smuggling | 14 | 1 | 15 | 93.3% |
-| OS command injection | 4 | 0 | 4 | 100% |
-| Server-side template injection | 5 | 0 | 5 | 100% |
-| Path traversal | 5 | 0 | 5 | 100% |
-| Access control | 4 | 0 | 4 | 100% |
-| Authentication | 8 | 1 | 9 | 88.9% |
-| WebSockets | 0 | 2 | 2 | 0% |
-| Web cache poisoning | 9 | 0 | 9 | 100% |
-| Insecure deserialization | 5 | 1 | 6 | 83.3% |
-| Information disclosure | 0 | 1 | 1 | 0% |
-| Business logic | 2 | 5 | 7 | 28.6% |
-| HTTP Host header attacks | 4 | 0 | 4 | 100% |
-| OAuth authentication | 4 | 0 | 4 | 100% |
-| File upload vulnerabilities | 4 | 0 | 4 | 100% |
-| JWT | 4 | 0 | 4 | 100% |
-| Essential skills | 2 | 0 | 2 | 100% |
-| Prototype pollution | 0 | 9 | 9 | 0% |
-| GraphQL API | 4 | 0 | 4 | 100% |
-| Race conditions | 0 | 4 | 4 | 0% |
-| NoSQL injection | 0 | 2 | 2 | 0% |
-| API testing | 3 | 0 | 3 | 100% |
-| Web LLM attacks | 0 | 2 | 2 | 0% |
-| Web cache deception | 0 | 3 | 3 | 0% |
+| Category                       | Solved | Not Solved | Total | Completion % |
+| ------------------------------ | ------ | ---------- | ----- | ------------ |
+| SQL injection                  | 9      | 7          | 16    | 56.3%        |
+| Cross-site scripting           | 16     | 0          | 16    | 100%         |
+| CSRF                           | 11     | 0          | 11    | 100%         |
+| Clickjacking                   | 0      | 4          | 4     | 0%           |
+| DOM-based vulnerabilities      | 5      | 0          | 5     | 100%         |
+| CORS                           | 1      | 0          | 1     | 100%         |
+| XXE injection                  | 6      | 0          | 6     | 100%         |
+| SSRF                           | 3      | 0          | 3     | 100%         |
+| HTTP request smuggling         | 14     | 1          | 15    | 93.3%        |
+| OS command injection           | 4      | 0          | 4     | 100%         |
+| Server-side template injection | 5      | 0          | 5     | 100%         |
+| Path traversal                 | 5      | 0          | 5     | 100%         |
+| Access control                 | 4      | 0          | 4     | 100%         |
+| Authentication                 | 8      | 1          | 9     | 88.9%        |
+| WebSockets                     | 0      | 2          | 2     | 0%           |
+| Web cache poisoning            | 9      | 0          | 9     | 100%         |
+| Insecure deserialization       | 5      | 1          | 6     | 83.3%        |
+| Information disclosure         | 0      | 1          | 1     | 0%           |
+| Business logic                 | 2      | 5          | 7     | 28.6%        |
+| HTTP Host header attacks       | 4      | 0          | 4     | 100%         |
+| OAuth authentication           | 4      | 0          | 4     | 100%         |
+| File upload vulnerabilities    | 4      | 0          | 4     | 100%         |
+| JWT                            | 4      | 0          | 4     | 100%         |
+| Essential skills               | 2      | 0          | 2     | 100%         |
+| Prototype pollution            | 0      | 9          | 9     | 0%           |
+| GraphQL API                    | 4      | 0          | 4     | 100%         |
+| Race conditions                | 0      | 4          | 4     | 0%           |
+| NoSQL injection                | 0      | 2          | 2     | 0%           |
+| API testing                    | 3      | 0          | 3     | 100%         |
+| Web LLM attacks                | 0      | 2          | 2     | 0%           |
+| Web cache deception            | 0      | 3          | 3     | 0%           |
 
 **SQL injection**
 - SQL injection attack, querying the database type and version on Oracle - Solved
