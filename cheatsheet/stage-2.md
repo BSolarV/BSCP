@@ -710,6 +710,7 @@ java -jar ysoserial-all.jar URLDNS "http://burp.oastify.com" | base64 -w 0
 5. **Update length indicators** - Critical for PHP serialization
 6. **Use ysoserial for Java** - Don't waste time on manual gadget chains
 7. **Try URLDNS first** - Universal Java deserialization detection
+8. If access to stack traces, identify code logic and think of potential vulnerabilities. EX. Vulnerabilities in PHP comparison or use of magic methods.
 
 ## 🔍 Testing Workflow
 
@@ -737,13 +738,13 @@ echo 'O:4:"User":2:{s:8:"username";s:13:"administrator";s:7:"isAdmin";b:1;}' | b
 
 ## 📚 Common PHP Magic Methods
 
-| Method | When Invoked | Use Case |
-|--------|--------------|----------|
-| `__construct()` | Object creation | Initialize attributes |
-| `__destruct()` | Object destruction | Cleanup, file operations |
-| `__wakeup()` | After `unserialize()` | Re-initialize object |
-| `__toString()` | Object treated as string | String conversion |
-| `__call()` | Undefined method called | Method overloading |
+| Method          | When Invoked             | Use Case                 |
+| --------------- | ------------------------ | ------------------------ |
+| `__construct()` | Object creation          | Initialize attributes    |
+| `__destruct()`  | Object destruction       | Cleanup, file operations |
+| `__wakeup()`    | After `unserialize()`    | Re-initialize object     |
+| `__toString()`  | Object treated as string | String conversion        |
+| `__call()`      | Undefined method called  | Method overloading       |
 
 ## 🔗 Quick Reference
 

