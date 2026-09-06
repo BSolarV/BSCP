@@ -136,6 +136,7 @@ It is required to modify the request header via the inspector. The result can no
 At the requests headers on the inspector, add a new header. Set any value to it, then, as value, set any value, then `SHIFT+ENTER` to add `\r\n` and finally `Transfer-Encoding: chunked`. This value is ignored by HTTP/2 but valid for HTTP/1, so the breakline will create a new header for HTTP/1 allowing to inject TE that would be stripped by the front.
 
 ![[Pasted image 20260829220159.png]]
+
 It is also feasable to inject the sumgged request in the header. The same method just that we are not adding a headder, we are adding a line break and a new request afterwards.
 
 ![[Pasted image 20260829220146.png]]
