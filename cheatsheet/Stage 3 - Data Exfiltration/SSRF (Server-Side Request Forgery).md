@@ -2,6 +2,7 @@
 
 1. **Product Stock Check** (`/product/stock`) ⭐⭐⭐
 2. **Admin Panel** - "Download report as PDF" feature
+3. **IMPORTANT**: An **absolute URL** in a get or post request might allow for SSRF. (Cookies may affect if it is allowed or not)
 
 ## ⚠️ CRITICAL EXAM TIP
 

